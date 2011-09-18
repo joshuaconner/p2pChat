@@ -96,7 +96,6 @@ public class Peer {
 		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 		String userInput;
 		try {
-
 			mainloop:while (!quit) {
 				if ((userInput = stdIn.readLine()) != null) {
 				    if (userInput.toLowerCase().equals("quit"))

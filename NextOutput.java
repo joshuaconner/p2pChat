@@ -24,9 +24,9 @@ public class NextOutput implements Runnable {
 			{
 				Peer.reconnectQueue.remove();
 				Peer.hold = false;
-				synchronized (Peer.monitor) {
-					Peer.monitor.notifyAll();
-				}
+//				synchronized (Peer.monitor) {
+//					Peer.monitor.notifyAll();
+//				}
 			}
 	    } catch (SocketException e) {
 			//do nothing. really!
@@ -40,6 +40,7 @@ public class NextOutput implements Runnable {
 		System.out.println("NEXT: " + Peer.next.toString());
 	    while (!Peer.quit)
 	    {
+	    	Peer.nextOut.println("80085");
 			if (!Peer.reconnectQueue.isEmpty()) {
 				doReconnect(Peer.reconnectQueue.peek());
 			}

@@ -44,6 +44,7 @@ public class PrevOutput implements Runnable {
 		System.out.println("PREV: " + Peer.prev.toString());
 		while (!Peer.prevDone)
 		{	
+			Peer.prevOut.println("80085");
 			if(!Peer.socketQueue.isEmpty())
 			{
 				sendReconnect(Peer.socketQueue.remove());

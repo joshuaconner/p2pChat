@@ -11,7 +11,7 @@ public class NextInput implements Runnable {
 			try {
 				while((housekeeping = Peer.nextIn.readLine()) != null)
 				{   
-					if (Peer.debug) System.out.println("Housekeeping received: " + housekeeping);
+					//if (Peer.debug) System.out.println("Housekeeping received: " + housekeeping);
 					if (housekeeping.startsWith("Hold"))
 				    {
 				    	Peer.hold = true;
@@ -22,6 +22,7 @@ public class NextInput implements Runnable {
 				    } 
 				    else
 				    {
+				    	if (housekeeping.equals("80085"));
 				    	if (Peer.debug) System.out.println("New IP received: " + housekeeping);
 				    	Peer.reconnectQueue.add(housekeeping);	
 				    }
