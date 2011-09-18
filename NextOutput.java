@@ -41,6 +41,12 @@ public class NextOutput implements Runnable {
 	    while (!Peer.quit)
 	    {
 	    	Peer.nextOut.println("80085");
+	    	try {
+				wait(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			if (!Peer.reconnectQueue.isEmpty()) {
 				doReconnect(Peer.reconnectQueue.peek());
 			}
