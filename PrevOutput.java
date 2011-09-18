@@ -45,12 +45,6 @@ public class PrevOutput implements Runnable {
 		while (!Peer.prevDone)
 		{	
 			Peer.prevOut.println("80085");
-			try {
-				wait(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 			if(!Peer.socketQueue.isEmpty())
 			{
 				sendReconnect(Peer.socketQueue.remove());
