@@ -13,7 +13,7 @@ public class PrevInput implements Runnable {
 	    		String input;
 			while((input = Peer.prevIn.readLine()) != null)
 			{
-				if (!input.startsWith(Peer.myIP) || (!input.equals("80085")))
+				if (!input.startsWith(Peer.myIP) && (!input.equals("80085")))
 				{
 					Peer.chatQueue.add(input);
 				}
@@ -22,6 +22,8 @@ public class PrevInput implements Runnable {
 			if(!Peer.quit) {
 				try {
 					wait(1000);
+				} catch (IllegalMonitorStateException e1) {
+					System.out.println("IllegalMontiorStateException");
 				} catch (InterruptedException e1) {
 					// shouldn't happen
 					e1.printStackTrace();

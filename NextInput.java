@@ -32,6 +32,8 @@ public class NextInput implements Runnable {
 			{
 				try {
 					wait(1000);
+				} catch (IllegalMonitorStateException e1) {
+					System.out.println("IllegalMontiorStateException");
 				} catch (InterruptedException e1) {
 					// shouldn't happen
 					e1.printStackTrace();
