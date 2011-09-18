@@ -25,11 +25,6 @@ public class PrevOutput implements Runnable {
 		    		Peer.prev.getInputStream()));
 		    Peer.prevOut = new PrintStream(
 		    		Peer.prev.getOutputStream(), true);
-		    /*
-		    synchronized (Peer.nextMonitor) {
-		    		Peer.prevInput.notify();
-		    }
-		    */
         } catch (InterruptedException e) {
         		//shouldn't happen
 		} catch (SocketException e) {

@@ -24,9 +24,6 @@ public class NextOutput implements Runnable {
 			{
 				Peer.reconnectQueue.remove();
 				Peer.hold = false;
-//				synchronized (Peer.monitor) {
-//					Peer.monitor.notifyAll();
-//				}
 			}
 	    } catch (SocketException e) {
 			//do nothing. really!

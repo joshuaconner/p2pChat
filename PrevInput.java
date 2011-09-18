@@ -9,26 +9,24 @@ public class PrevInput implements Runnable {
 	
 	@Override
 	public void run() {
-		synchronized (Peer.monitor) {
-		    	try {
-		    		String input;
-				while((input = Peer.prevIn.readLine()) != null)
+	    	try {
+	    		String input;
+			while((input = Peer.prevIn.readLine()) != null)
+			{
+				if (!input.startsWith(Peer.myIP) || (!input.equals("80085")))
 				{
-					if (!input.startsWith(Peer.myIP) || (!input.equals("80085")))
-					{
-						Peer.chatQueue.add(input);
-					}
+					Peer.chatQueue.add(input);
 				}
-			} catch (IOException e) {
-				if(!Peer.quit) {
-					try {
-						wait();
-					} catch (InterruptedException e1) {
-						// shouldn't happen
-						e1.printStackTrace();
-					}
-					run();
+			}
+		} catch (IOException e) {
+			if(!Peer.quit) {
+				try {
+					wait(1000);
+				} catch (InterruptedException e1) {
+					// shouldn't happen
+					e1.printStackTrace();
 				}
+				run();
 			}
 		}
 	}
