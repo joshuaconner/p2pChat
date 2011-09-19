@@ -21,12 +21,12 @@ public class PrevInput implements Runnable {
 					{ 
 						System.out.println("(You) " + input);
 					}
-					else if (!input.substring(5).startsWith(Peer.myIP))
+					/*else if (!input.substring(5).startsWith(Peer.myIP))
 					//it's my chat-join or chat-leave message that's come back
 					//around the loop, so ignore it
 					{
 						continue;
-					}
+					}*/
 					else
 					//otherwise it's someone else's chat; add to queue
 					{
