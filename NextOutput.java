@@ -9,6 +9,10 @@ import java.net.SocketException;
 
 public class NextOutput implements Runnable {
 	
+	/* doReconnect(String IP)
+	 * 
+	 * Closes the current next socket, and opens a new next socket to IP.
+	 */
 	protected static void doReconnect(String IP)
 	{
 		if (Peer.debug)
@@ -21,39 +25,41 @@ public class NextOutput implements Runnable {
 		    Peer.next = new Socket(IP, Peer.serverPort);
 			Peer.nextIn = new BufferedReader(new InputStreamReader(Peer.next.getInputStream()));
 			Peer.nextOut = new PrintStream(Peer.next.getOutputStream(), true);
-			
-			/*if (Peer.next.getInetAddress().getHostAddress().equals(IP))
-			{
-				Peer.reconnectQueue.remove();*/
+		
 			Peer.setHold(false);
-				/*
-				synchronized (Peer.nextMonitor) {
-					Peer.nextMonitor.notify();
-				}
-				*/
-			//}
 	    } catch (SocketException e) {
-			//do nothing. really!
+			//do nothing. really! SocketExceptions are expected when 
+	    	//reconnecting.
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Something unexpected went wrong. Please try" +
+					"again.");
+			System.exit(1);
 		}
 	}
 	
 	
 	public void run() {
+		//debug code
 		if (Peer.debug)
 			System.out.println("NEXT: " + Peer.next.toString());
-	    while (!Peer.getQuit())
+	    
+		//main execution loop
+		while (!Peer.getQuit())
 	    {
+			//if we are supposed to reconnect to someone, do it!
 			if (!Peer.reconnectQueue.isEmpty()) {
 				doReconnect(Peer.reconnectQueue.remove());
 			}
 			
+			//if we are not mid-reconnect, send the first message in the chat
+			//queue.
 			if (!Peer.chatQueue.isEmpty() && !Peer.hold)
 			{
 				String message = Peer.chatQueue.remove();
-				if (!message.startsWith(Peer.myIP)) 
+				
+				//make sure it's not my message before printing to stdIn
+				if (!message.startsWith(Peer.myIP) &&
+						!message.substring(5).startsWith(Peer.myIP)) 
 					System.out.println(message);
 			    Peer.nextOut.println(message);
 			}

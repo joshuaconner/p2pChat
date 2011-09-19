@@ -8,15 +8,28 @@ import java.net.Socket;
 import java.net.SocketException;
 
 public class PrevOutput implements Runnable {
-    protected static void sendReconnect(Socket newPrev)
+    
+	/* sendReconnect(Socket new Prev)
+	 * 
+	 * Tells your current prev node to change their next (i.e. you) to newPrev,
+	 * then closes their socket. Reassigns prev = newPrev, so the order will
+	 * now be prev-->newPrev-->you.
+	 */
+	protected static void sendReconnect(Socket newPrev)
     {
         try {
+        	//sends first of two messages
     		Peer.prevOut.println("Hold");
-    		if (Peer.debug) System.out.println("Hold sent");
-		    Peer.prevOut.println(newPrev.getInetAddress().getHostAddress());
+    		
+    		//debug code
+    		if (Peer.debug) System.out.println("Hold sent");	
 		    if (Peer.debug) System.out.println("IP " + 
 		    		newPrev.getInetAddress().getHostAddress() + " sent");
-		    //Thread.sleep(1000);
+		    
+		    //sends second of two messages
+		    Peer.prevOut.println(newPrev.getInetAddress().getHostAddress());
+		    
+		    //close old prev, assign prev = newPrev, reopen streams
 		    Peer.prevOut.close();
 		    Peer.prevIn.close();
 		    Peer.prev.close();
@@ -25,21 +38,17 @@ public class PrevOutput implements Runnable {
 		    		Peer.prev.getInputStream()));
 		    Peer.prevOut = new PrintStream(
 		    		Peer.prev.getOutputStream(), true);
-		    
-		    /*
-		    synchronized (Peer.prevMonitor) {
-		    	Peer.prevMonitor.notify();
-		    }
-		    */
-       // } catch (InterruptedException e) {
-       // 	if(Peer.debug)
-       //		System.out.println(e.getClass().toString() + " caught in PrevOutput");
+
+		//SocketExceptions and I/O exceptions are expected as you close and
+		//reopen sockets, so we ignore.
 		} catch (SocketException e) {
 			if(Peer.debug)
-        		System.out.println(e.getClass().toString() + " caught in PrevOutput");
+        		System.out.println(e.getClass().toString() + 
+        				" caught in PrevOutput");
 		} catch (IOException e) {
 			if(Peer.debug)
-        		System.out.println(e.getClass().toString() + " caught in PrevOutput");
+        		System.out.println(e.getClass().toString() + 
+        				" caught in PrevOutput");
 		}
     }
 	

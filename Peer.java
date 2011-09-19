@@ -5,7 +5,7 @@ import java.net.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Peer {
-	public static final boolean debug = true;
+	public static final boolean debug = false;
 	protected static boolean quit = false;
 	protected static boolean prevDone = false;
 	protected static boolean hold = false;
@@ -24,38 +24,49 @@ public class Peer {
 	protected static String myIP;
 	protected static int serverPort = 4242;
 	protected static ServerSocket ss;
-	protected static Thread nextInput;
-	protected static Thread nextOutput;
-	protected static Thread prevInput;
-	protected static Thread prevOutput;
-	protected static Thread connectionHandler;
-	
+
+	/*
+	 * synchronized getter and setter for hold
+	 */
 	protected static synchronized void setHold(Boolean value) {
 		hold = value; 
 	}
-	
 	protected static synchronized boolean getHold() {
 		return hold;
 	}
 	
+	/*
+	 * synchronized getter and setter for quit
+	 */
 	protected static synchronized void setQuit(Boolean value) {
 		quit = value; 
 	}
-	
 	protected static synchronized boolean getQuit() {
 		return quit;
 	}
 
-	/**
-	 * @param args
-	 * @throws Exception
-	 */
+
 	/**
 	 * @param args
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
+		//initialize class variables
+		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+		
+    	try {
+			myIP = InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			//can't get own IP for some reason???
+			System.out.println("Something unexpected went wrong. Please try" +
+					"again.");
+			System.exit(1);
+		}
+		
+		ss = new ServerSocket(serverPort);
+		
+
 		System.out.println("***********************************************");
 		System.out.println("*            Welcome to P2P Chat!             *");
 		System.out.println("*                                             *");
@@ -66,17 +77,7 @@ public class Peer {
 		System.out.println("*                 Fall 2011                   *");
 		System.out.println("***********************************************\n");
 		
-		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-		
-    	try {
-			myIP = InetAddress.getLocalHost().getHostAddress();
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		ss = new ServerSocket(serverPort);
-		
+		//if no arguments, ask for IP to connect to from stdIn
 		String input = null; 
 		if (args.length  == 0) {
 			System.out.print("Enter the IP address to connect to, or press " +
@@ -90,8 +91,10 @@ public class Peer {
 			{
 				next = new Socket(input, serverPort);
 			}
+		//if there is an argument, attempt to connect to chat node at that IP
 		} else if (args.length  == 1) {
 			next = new Socket(InetAddress.getByName(args[0]), serverPort);
+		//error if too many args
 		} else {
 			System.out.println("You entered the too many arguments." +
 					" Please try again!");
@@ -99,24 +102,23 @@ public class Peer {
 			System.exit(0);
 		}
 		
+		//set up original sockets and their streams
 		prev = ss.accept();
 		nextIn = new BufferedReader(new InputStreamReader(next.getInputStream()));
 		nextOut = new PrintStream(next.getOutputStream(), true);
 		prevIn = new BufferedReader(new InputStreamReader(prev.getInputStream()));
 		prevOut = new PrintStream(prev.getOutputStream(), true);
 		
+		//set up Threads to handle each stream, and also new connections
+		(new Thread(new NextInput(), "NextIn")).start();
+		(new Thread(new NextOutput(), "NextOut")).start();
+		(new Thread(new PrevOutput(), "PrevOut")).start();
+		(new Thread(new ConnectionHandler(), "ConnectionHandler")).start();
+		(new Thread(new PrevInput(), "PrevIn")).start();
+	
 		
-		nextInput = new Thread(new NextInput(), "NextIn");
-		nextInput.start();
-		nextOutput = new Thread(new NextOutput(), "NextOut");
-		nextOutput.start();
-		prevOutput = new Thread(new PrevOutput(), "PrevOut");
-		prevOutput.start();
-		connectionHandler = new Thread(new ConnectionHandler(), "ConnHand");
-		connectionHandler.start();
-		prevInput = new Thread(new PrevInput(), "PrevIn");
-		prevInput.start();
-		
+		//display system message notifying you that you are listening or
+		//connected to a chat node, whichever is the case
 		if(input.length() == 0 && args.length == 0) 
 		{
 			System.out.println("    [Now listening at IP " + myIP + "]");
@@ -128,16 +130,21 @@ public class Peer {
 			chatQueue.add("    [" + myIP + " has joined the chat.]");
 		}
 		
+		/*
+		 * begin main execution loop
+		 */
 		String userInput;
 		try {
 
 			mainloop:while (!getQuit()) {
 				if ((userInput = stdIn.readLine()) != null) {
-				    if (userInput.toLowerCase().equals("quit"))
+				    //if "quit" start quit process
+					if (userInput.toLowerCase().equals("quit"))
 				    {
 					    	setQuit(true);
 					    	break mainloop;
 				    }
+					//debug code
 				    else if (Peer.debug && userInput.toLowerCase().equals("debug"))
 				    {
 				    		System.out.println("PREV: " + prev.toString());
@@ -147,12 +154,14 @@ public class Peer {
 				    		System.out.println("reconnectQueue empty? " + reconnectQueue.isEmpty());
 				    		System.out.println("Hold = " + getHold() + ", prevDone = " + prevDone + ", quit = " + getQuit());
 				    }
+					//more debug code; allows you to send messages backwards
 				    else if (Peer.debug && userInput.toLowerCase().startsWith("housekeeping"))
 				    {
 				    	if(Peer.debug)
 				    	System.out.println("Sending housekeeping: " + userInput.substring(13));	
 				    	Peer.prevOut.println(userInput.substring(13));
 				    }
+					//else add message to chat queue
 				    else
 				    {
 				        Peer.chatQueue.add(Peer.myIP + ": " + userInput);
@@ -160,20 +169,29 @@ public class Peer {
 				}
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// something went wrong with stdIn.readLine() or socket streams
+			System.out.println("Something unexpected went wrong. Please try" +
+					"again.");
+			System.exit(1);
 		}
 		
 		//i.e. if you're not the only node left, do the following
 		if(!next.getInetAddress().getHostAddress().equals(myIP) && 
 				!prev.getInetAddress().getHostAddress().equals(myIP))
 		{
+			//send chat-leave message
 			Peer.chatQueue.add("    [" + myIP + " has left the chat.]");
+			
+			//empty the socket queue
 			while(!socketQueue.isEmpty())
 			{
 			    Socket s = socketQueue.remove();
 			    PrevOutput.sendReconnect(s);
 			}
+			
+			/*
+			 * Final reconnect; connects your prev and your next
+			 */
 	    	prevOut.println("Hold");
 		    
 		    while(!chatQueue.isEmpty())
@@ -182,9 +200,9 @@ public class Peer {
 		    }
 		    
 		    prevOut.println(next.getInetAddress().getHostAddress());
-		    //Thread.sleep(1000);
 		}
 		
+		//cleanup
 	    prevOut.close();
 	    prevIn.close();
 	    prev.close();
