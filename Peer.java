@@ -60,7 +60,7 @@ public class Peer {
 		} catch (UnknownHostException e) {
 			//can't get own IP for some reason???
 			System.out.println("Something unexpected went wrong. Please try" +
-					"again.");
+					" again. (UnknownHostException)");
 			System.exit(1);
 		}
 		

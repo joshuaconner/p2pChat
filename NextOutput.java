@@ -39,7 +39,7 @@ public class NextOutput implements Runnable {
 	
 	
 	public void run() {
-		String lastExitMsg = null;
+		String lastExitMsg = "";
 		//debug code
 		if (Peer.debug)
 			System.out.println("NEXT: " + Peer.next.toString());
@@ -58,6 +58,8 @@ public class NextOutput implements Runnable {
 			{
 				String message = Peer.chatQueue.remove();
 				
+				//checks any exit messages against the last exit message;
+				//if it's a duplicate, discards it.
 				if (message.startsWith("  "))
 					if (message.equals(lastExitMsg)) 
 					{
