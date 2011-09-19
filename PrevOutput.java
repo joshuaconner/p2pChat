@@ -11,7 +11,7 @@ public class PrevOutput implements Runnable {
     protected static void sendReconnect(Socket newPrev)
     {
         try {
-    		Peer.prevOut.println("hold");
+    		Peer.prevOut.println("Hold");
     		if (Peer.debug) System.out.println("Hold sent");
 		    Peer.prevOut.println(newPrev.getInetAddress().getHostAddress());
 		    if (Peer.debug) System.out.println("IP " + 
@@ -44,8 +44,7 @@ public class PrevOutput implements Runnable {
     }
 	
 	public void run() {
-		if (Peer.debug)
-			System.out.println("PREV: " + Peer.prev.toString());
+		System.out.println("PREV: " + Peer.prev.toString());
 		while (!Peer.prevDone)
 		{	
 			if(!Peer.socketQueue.isEmpty())

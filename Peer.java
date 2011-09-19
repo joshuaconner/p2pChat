@@ -50,18 +50,7 @@ public class Peer {
 	 * @param args
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
-		System.out.println("***********************************************");
-		System.out.println("*            Welcome to P2P Chat!             *");
-		System.out.println("*                                             *");
-		System.out.println("* by Jacob Williams, Michael McCormick, Chad  *");
-		System.out.println("*         Ellsworth and Joshua Conner         *");
-		System.out.println("*                                             *");
-		System.out.println("*       CS 499/565: Distributed Systems       *");
-		System.out.println("*                 Fall 2011                   *");
-		System.out.println("***********************************************\n");
-		
 		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 		
     	try {
@@ -73,10 +62,11 @@ public class Peer {
 		
 		ss = new ServerSocket(serverPort);
 		
-		String input = null;
+		
 		if (args.length  == 0) {
 			System.out.print("Enter the IP address to connect to, or press " +
-					"<Enter> to start a new chat node: "); 
+					"<Enter> to start a new chat node: ");
+			String input = null; 
 			if ((input = stdIn.readLine()) == null) 
 			{
 				next = new Socket(myIP, serverPort);
@@ -112,11 +102,7 @@ public class Peer {
 		
 		String userInput;
 		try {
-			if (input != null && args.length != 0) {
-				chatQueue.add("    [" + myIP + " has joined the chat.]");
-			} else {
-				System.out.println("   [Now listening at IP " + myIP + ".]");
-			}
+
 			mainloop:while (!getQuit()) {
 				if ((userInput = stdIn.readLine()) != null) {
 				    if (userInput.toLowerCase().equals("quit"))
@@ -141,7 +127,6 @@ public class Peer {
 				    }
 				    else
 				    {
-				    	System.out.println("You (" + myIP + "): " + userInput);
 				        Peer.chatQueue.add(Peer.myIP + ": " + userInput);
 				    }
 				}
@@ -151,27 +136,22 @@ public class Peer {
 			e.printStackTrace();
 		}
 		
-		chatQueue.add("    [" + myIP + " has left the chat.]");
-		if (!next.getInetAddress().getHostAddress().equals(myIP) &&
-				!prev.getInetAddress().getHostAddress().equals(myIP)) 
+		while(!socketQueue.isEmpty())
 		{
-			while(!socketQueue.isEmpty())
-			{
-			    Socket s = socketQueue.remove();
-			    PrevOutput.sendReconnect(s);
-			}
-	    	prevOut.println("Hold");
-		    
-		    while(!chatQueue.isEmpty())
-		    {
-		    	nextOut.println(chatQueue.remove());
-		    }
-		    
-		    prevOut.println(next.getInetAddress().getHostAddress());
-		    //Thread.sleep(1000);
+		    Socket s = socketQueue.remove();
+		    PrevOutput.sendReconnect(s);
 		}
+    	prevOut.println("Hold");
 	    
-		prevOut.close();
+	    while(!chatQueue.isEmpty())
+	    {
+	    	nextOut.println(chatQueue.remove());
+	    }
+	    
+	    prevOut.println(next.getInetAddress().getHostAddress());
+	    //Thread.sleep(1000);
+	    
+	    prevOut.close();
 	    prevIn.close();
 	    prev.close();
 

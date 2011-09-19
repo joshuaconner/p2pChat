@@ -41,8 +41,7 @@ public class NextOutput implements Runnable {
 	}
 	
 	public void run() {
-		if (Peer.debug)
-			System.out.println("NEXT: " + Peer.next.toString());
+		System.out.println("NEXT: " + Peer.next.toString());
 	    while (!Peer.getQuit())
 	    {
 			if (!Peer.reconnectQueue.isEmpty()) {
@@ -52,19 +51,8 @@ public class NextOutput implements Runnable {
 			if (!Peer.chatQueue.isEmpty() && !Peer.hold)
 			{
 				String message = Peer.chatQueue.remove();
-				if (message.substring(5).startsWith(Peer.myIP)) 
-				{
-					System.out.println("   [You have" + 
-							message.substring(Peer.myIP.length() + 9));
-				} 
-				else if (message.startsWith(Peer.myIP)) 
-				{
-					continue;
-				}
-				else
-				{
-					Peer.nextOut.println(message);
-				}
+				if (!message.startsWith(Peer.myIP)) System.out.println(message);
+			    Peer.nextOut.println(message);
 			}
 	    }
 	}

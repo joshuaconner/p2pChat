@@ -3,13 +3,12 @@ package p2pChat;
 import java.io.IOException;
 
 public class NextInput implements Runnable {
+	
+	boolean reconnectDone;
 
-	@SuppressWarnings("unused")
 	@Override
 	public void run() {
 		String housekeeping;
-		boolean reconnectDone = true;
-		
 		try {
 			while (true) {
 				if((housekeeping = Peer.nextIn.readLine()) != null)
@@ -19,8 +18,7 @@ public class NextInput implements Runnable {
 				    {
 				    	Peer.setHold(true);
 				    	reconnectDone = false;
-				    	
-				    	while(Peer.getHold() && !reconnectDone) {
+				    	while(Peer.getHold() ) {
 				    		try {
 				    			String reconnectIP;
 				    			if((reconnectIP = Peer.nextIn.readLine()) != null) {
