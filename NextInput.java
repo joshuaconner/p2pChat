@@ -6,6 +6,7 @@ public class NextInput implements Runnable {
 	
 	boolean reconnectDone;
 
+	@SuppressWarnings("unused")
 	@Override
 	public void run() {
 		String housekeeping;

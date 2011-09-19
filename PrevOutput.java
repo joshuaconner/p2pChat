@@ -44,7 +44,9 @@ public class PrevOutput implements Runnable {
     }
 	
 	public void run() {
-		System.out.println("PREV: " + Peer.prev.toString());
+		if (Peer.debug) 
+			System.out.println("PREV: " + Peer.prev.toString());
+		
 		while (!Peer.prevDone)
 		{	
 			if(!Peer.socketQueue.isEmpty())

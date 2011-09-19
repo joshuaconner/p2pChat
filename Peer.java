@@ -50,7 +50,18 @@ public class Peer {
 	 * @param args
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
+		System.out.println("***********************************************");
+		System.out.println("*            Welcome to P2P Chat!             *");
+		System.out.println("*                                             *");
+		System.out.println("* by Jacob Williams, Michael McCormick, Chad  *");
+		System.out.println("*         Ellsworth and Joshua Conner         *");
+		System.out.println("*                                             *");
+		System.out.println("*       CS 499/565: Distributed Systems       *");
+		System.out.println("*                 Fall 2011                   *");
+		System.out.println("***********************************************\n");
+		
 		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 		
     	try {

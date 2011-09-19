@@ -41,7 +41,8 @@ public class NextOutput implements Runnable {
 	}
 	
 	public void run() {
-		System.out.println("NEXT: " + Peer.next.toString());
+		if (Peer.debug)
+			System.out.println("NEXT: " + Peer.next.toString());
 	    while (!Peer.getQuit())
 	    {
 			if (!Peer.reconnectQueue.isEmpty()) {
