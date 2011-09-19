@@ -11,7 +11,7 @@ public class NextInput implements Runnable {
 	public void run() {
 		String housekeeping;
 		try {
-			while (true) {
+			while (!Peer.getQuit()) {
 				if((housekeeping = Peer.nextIn.readLine()) != null)
 				{   
 					if (Peer.debug) System.out.println("Housekeeping received: " + housekeeping);

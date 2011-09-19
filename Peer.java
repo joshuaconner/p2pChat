@@ -100,15 +100,15 @@ public class Peer {
 		prevOut = new PrintStream(prev.getOutputStream(), true);
 		
 		
-		nextInput = new Thread(new NextInput());
+		nextInput = new Thread(new NextInput(), "NextIn");
 		nextInput.start();
-		nextOutput = new Thread(new NextOutput());
+		nextOutput = new Thread(new NextOutput(), "NextOut");
 		nextOutput.start();
-		prevOutput = new Thread(new PrevOutput());
+		prevOutput = new Thread(new PrevOutput(), "PrevOut");
 		prevOutput.start();
-		connectionHandler = new Thread(new ConnectionHandler());
+		connectionHandler = new Thread(new ConnectionHandler(), "ConnHand");
 		connectionHandler.start();
-		prevInput = new Thread(new PrevInput());
+		prevInput = new Thread(new PrevInput(), "PrevIn");
 		prevInput.start();
 		
 		String userInput;
@@ -147,21 +147,26 @@ public class Peer {
 			e.printStackTrace();
 		}
 		
-		while(!socketQueue.isEmpty())
+		//i.e. if you're not the only node left, do the following
+		if(!next.getInetAddress().getHostAddress().equals(myIP) && 
+				!prev.getInetAddress().getHostAddress().equals(myIP))
 		{
-		    Socket s = socketQueue.remove();
-		    PrevOutput.sendReconnect(s);
+			while(!socketQueue.isEmpty())
+			{
+			    Socket s = socketQueue.remove();
+			    PrevOutput.sendReconnect(s);
+			}
+	    	prevOut.println("Hold");
+		    
+		    while(!chatQueue.isEmpty())
+		    {
+		    	nextOut.println(chatQueue.remove());
+		    }
+		    
+		    prevOut.println(next.getInetAddress().getHostAddress());
+		    //Thread.sleep(1000);
 		}
-    	prevOut.println("Hold");
-	    
-	    while(!chatQueue.isEmpty())
-	    {
-	    	nextOut.println(chatQueue.remove());
-	    }
-	    
-	    prevOut.println(next.getInetAddress().getHostAddress());
-	    //Thread.sleep(1000);
-	    
+		
 	    prevOut.close();
 	    prevIn.close();
 	    prev.close();
