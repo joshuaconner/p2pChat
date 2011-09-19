@@ -138,7 +138,7 @@ public class Peer {
 
 			MAINLOOP:while (!getQuit()) {
 				if ((userInput = stdIn.readLine()) != null) {
-				    //if "quit" start quit process
+				    //if "quit", start quit process
 					if (userInput.toLowerCase().equals("quit"))
 				    {
 					    	setQuit(true);

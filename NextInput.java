@@ -25,7 +25,7 @@ public class NextInput implements Runnable {
 				    {
 				    	Peer.setHold(true);
 				    	reconnectDone = false;
-				    	while(Peer.getHold()) {
+				    	while(Peer.getHold() && !reconnectDone) {
 				    		try {
 				    			String reconnectIP;
 				    			if((reconnectIP = Peer.nextIn.readLine()) != null) {
@@ -40,6 +40,7 @@ public class NextInput implements Runnable {
 				    			 */ 
 				    			if (Peer.getQuit())
 				    				break;
+				    			//else System.out.println("I/O Exception in hold while loop");
 				    		}
 				    	}
 				    }
