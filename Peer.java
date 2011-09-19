@@ -113,13 +113,14 @@ public class Peer {
 		prevInput = new Thread(new PrevInput(), "PrevIn");
 		prevInput.start();
 		
-		if(input == null && args.length == 0) 
+		if(input.length() == 0 && args.length == 0) 
 		{
-			System.out.println("Now listening at IP " + myIP);
+			System.out.println("    [Now listening at IP " + myIP + "...]");
 		}
 		else
 		{
-			System.out.println("Now connected to chat node at IP " + myIP);
+			System.out.println("    [Now connected to chat node at IP " + myIP +
+					".]");
 		}
 		
 		String userInput;
