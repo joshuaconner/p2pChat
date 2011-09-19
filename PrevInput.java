@@ -21,7 +21,7 @@ public class PrevInput implements Runnable {
 					}
 					else
 					{
-						System.out.println(input);
+						System.out.println("(You) " + input);
 					}
 				}
 	    	}

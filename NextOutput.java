@@ -40,6 +40,7 @@ public class NextOutput implements Runnable {
 		}
 	}
 	
+	
 	public void run() {
 		if (Peer.debug)
 			System.out.println("NEXT: " + Peer.next.toString());
@@ -52,7 +53,8 @@ public class NextOutput implements Runnable {
 			if (!Peer.chatQueue.isEmpty() && !Peer.hold)
 			{
 				String message = Peer.chatQueue.remove();
-				if (!message.startsWith(Peer.myIP)) System.out.println(message);
+				if (!message.startsWith(Peer.myIP)) 
+					System.out.println(message);
 			    Peer.nextOut.println(message);
 			}
 	    }
