@@ -73,11 +73,11 @@ public class Peer {
 		
 		ss = new ServerSocket(serverPort);
 		
-		
+		String input = null; 
 		if (args.length  == 0) {
 			System.out.print("Enter the IP address to connect to, or press " +
 					"<Enter> to start a new chat node: ");
-			String input = null; 
+		
 			if ((input = stdIn.readLine()) == null) 
 			{
 				next = new Socket(myIP, serverPort);
@@ -89,6 +89,8 @@ public class Peer {
 		} else if (args.length  == 1) {
 			next = new Socket(InetAddress.getByName(args[0]), serverPort);
 		} else {
+			System.out.println("You entered the too many arguments." +
+					" Please try again!");
 			System.out.println("Usage: peer [ipAddress]");
 			System.exit(0);
 		}
@@ -110,6 +112,15 @@ public class Peer {
 		connectionHandler.start();
 		prevInput = new Thread(new PrevInput(), "PrevIn");
 		prevInput.start();
+		
+		if(input == null && args.length == 0) 
+		{
+			System.out.println("Now listening at IP " + myIP);
+		}
+		else
+		{
+			System.out.println("Now connected to chat node at IP " + myIP);
+		}
 		
 		String userInput;
 		try {
