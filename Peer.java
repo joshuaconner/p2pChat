@@ -5,7 +5,7 @@ import java.net.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Peer {
-	public static final boolean debug = false;
+	public static final boolean debug = true;
 	protected static boolean quit = false;
 	protected static boolean prevDone = false;
 	protected static boolean hold = false;
