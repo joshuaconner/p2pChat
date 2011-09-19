@@ -53,7 +53,8 @@ public class NextOutput implements Runnable {
 			if (!Peer.chatQueue.isEmpty() && !Peer.hold)
 			{
 				String message = Peer.chatQueue.remove();
-				if (!message.startsWith(Peer.myIP)) 
+				if (!message.startsWith(Peer.myIP) &&
+						!message.substring(5).startsWith(Peer.myIP)) 
 					System.out.println(message);
 			    Peer.nextOut.println(message);
 			}

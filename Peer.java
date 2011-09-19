@@ -168,6 +168,7 @@ public class Peer {
 		if(!next.getInetAddress().getHostAddress().equals(myIP) && 
 				!prev.getInetAddress().getHostAddress().equals(myIP))
 		{
+			Peer.chatQueue.add("    [" + myIP + " has left the chat.]");
 			while(!socketQueue.isEmpty())
 			{
 			    Socket s = socketQueue.remove();
