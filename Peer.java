@@ -125,6 +125,7 @@ public class Peer {
 		{
 			System.out.println("    [Now connected to chat node at IP " + myIP +
 					".]");
+			chatQueue.add("    [" + myIP + " has joined the chat.]");
 		}
 		
 		String userInput;

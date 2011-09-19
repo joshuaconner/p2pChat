@@ -15,7 +15,8 @@ public class PrevInput implements Runnable {
 	    	{
 				if((input = Peer.prevIn.readLine()) != null)
 				{
-					if (!input.startsWith(Peer.myIP))
+					if (!input.startsWith(Peer.myIP) && 
+							!input.substring(5).startsWith(Peer.myIP))
 					{
 						Peer.chatQueue.add(input);
 					}
