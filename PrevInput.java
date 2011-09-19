@@ -1,33 +1,35 @@
 package p2pChat;
 
-import java.io.BufferedReader;
+//import java.io.BufferedReader;
 import java.io.IOException;
 
 
 public class PrevInput implements Runnable {
-	BufferedReader in;
+	//BufferedReader in;
 	
 	@Override
 	public void run() {
-	    	try {
-	    		String input;
-			while((input = Peer.prevIn.readLine()) != null)
-			{
-				if (!input.startsWith(Peer.myIP) && (!input.equals("80085")))
+	    try {
+	    	String input;
+	    	while (true)
+	    	{
+				if((input = Peer.prevIn.readLine()) != null)
 				{
-					Peer.chatQueue.add(input);
+					if (!input.startsWith(Peer.myIP))
+					{
+						Peer.chatQueue.add(input);
+					}
+					else
+					{
+						System.out.println(input);
+					}
 				}
-			}
+	    	}
 		} catch (IOException e) {
-			if(!Peer.quit) {
-				try {
-					wait(1000);
-				} catch (IllegalMonitorStateException e1) {
-					System.out.println("IllegalMontiorStateException");
-				} catch (InterruptedException e1) {
-					// shouldn't happen
-					e1.printStackTrace();
-				}
+			if (Peer.debug)
+				System.out.println(e.getClass().toString() + " caught in PrevInput.");
+			if(!Peer.getQuit()) {
+				while (Peer.getHold());
 				run();
 			}
 		}

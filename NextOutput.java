@@ -11,6 +11,8 @@ public class NextOutput implements Runnable {
 	
 	protected static void doReconnect(String IP)
 	{
+		if (Peer.debug)
+			System.out.println("NextOutput attempting to connect to " + IP);
 	    try {
 		    Peer.nextOut.close();
 		    Peer.nextIn.close();
@@ -20,11 +22,16 @@ public class NextOutput implements Runnable {
 			Peer.nextIn = new BufferedReader(new InputStreamReader(Peer.next.getInputStream()));
 			Peer.nextOut = new PrintStream(Peer.next.getOutputStream(), true);
 			
-			if (Peer.next.getInetAddress().getHostAddress().equals(IP))
+			/*if (Peer.next.getInetAddress().getHostAddress().equals(IP))
 			{
-				Peer.reconnectQueue.remove();
-				Peer.hold = false;
-			}
+				Peer.reconnectQueue.remove();*/
+			Peer.setHold(false);
+				/*
+				synchronized (Peer.nextMonitor) {
+					Peer.nextMonitor.notify();
+				}
+				*/
+			//}
 	    } catch (SocketException e) {
 			//do nothing. really!
 		} catch (IOException e) {
@@ -34,19 +41,30 @@ public class NextOutput implements Runnable {
 	}
 	
 	public void run() {
-		System.out.println("NEXT: " + Peer.next.toString());
-	    while (!Peer.quit)
+		if (Peer.debug)
+			System.out.println("NEXT: " + Peer.next.toString());
+	    while (!Peer.getQuit())
 	    {
-	    	Peer.nextOut.println("80085");	  
 			if (!Peer.reconnectQueue.isEmpty()) {
-				doReconnect(Peer.reconnectQueue.peek());
+				doReconnect(Peer.reconnectQueue.remove());
 			}
 			
 			if (!Peer.chatQueue.isEmpty() && !Peer.hold)
 			{
 				String message = Peer.chatQueue.remove();
-			    System.out.println(message);
-			    Peer.nextOut.println(message);
+				if (message.substring(5).startsWith(Peer.myIP)) 
+				{
+					System.out.println("   [You have" + 
+							message.substring(Peer.myIP.length() + 9));
+				} 
+				else if (message.startsWith(Peer.myIP)) 
+				{
+					continue;
+				}
+				else
+				{
+					Peer.nextOut.println(message);
+				}
 			}
 	    }
 	}

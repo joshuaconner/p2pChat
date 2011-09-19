@@ -5,7 +5,7 @@ import java.net.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Peer {
-	public static final boolean debug = true;
+	public static final boolean debug = false;
 	protected static boolean quit = false;
 	protected static boolean prevDone = false;
 	protected static boolean hold = false;
@@ -29,35 +29,42 @@ public class Peer {
 	protected static Thread prevInput;
 	protected static Thread prevOutput;
 	protected static Thread connectionHandler;
-    protected static Object monitor;
-//    protected static Object prevMonitor;
-	/*
-    Peer()
-    {
-    	quit = false;
-    	prevDone = false;
-    	socketQueue = new LinkedBlockingQueue<Socket>();
-    	chatQueue = new LinkedBlockingQueue<String>();
-    	hold = false;
-    	try {
-			myIP = InetAddress.getLocalHost().getHostAddress();
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }
-    */
-    
+	
+	protected static synchronized void setHold(Boolean value) {
+		hold = value; 
+	}
+	
+	protected static synchronized boolean getHold() {
+		return hold;
+	}
+	
+	protected static synchronized void setQuit(Boolean value) {
+		quit = value; 
+	}
+	
+	protected static synchronized boolean getQuit() {
+		return quit;
+	}
 
 	/**
 	 * @param args
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
-//		nextMonitor = new Object();
-		monitor = new Object();
+		System.out.println("***********************************************");
+		System.out.println("*            Welcome to P2P Chat!             *");
+		System.out.println("*                                             *");
+		System.out.println("* by Jacob Williams, Michael McCormick, Chad  *");
+		System.out.println("*         Ellsworth and Joshua Conner         *");
+		System.out.println("*                                             *");
+		System.out.println("*       CS 499/565: Distributed Systems       *");
+		System.out.println("*                 Fall 2011                   *");
+		System.out.println("***********************************************\n");
 		
-    		try {
+		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+		
+    	try {
 			myIP = InetAddress.getLocalHost().getHostAddress();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -65,13 +72,23 @@ public class Peer {
 		}
 		
 		ss = new ServerSocket(serverPort);
-
+		
+		String input = null;
 		if (args.length  == 0) {
-			next = new Socket(myIP, serverPort);
+			System.out.print("Enter the IP address to connect to, or press " +
+					"<Enter> to start a new chat node: "); 
+			if ((input = stdIn.readLine()) == null) 
+			{
+				next = new Socket(myIP, serverPort);
+			}
+			else
+			{
+				next = new Socket(input, serverPort);
+			}
 		} else if (args.length  == 1) {
 			next = new Socket(InetAddress.getByName(args[0]), serverPort);
 		} else {
-			System.out.println("Usage: peer [ip address]");
+			System.out.println("Usage: peer [ipAddress]");
 			System.exit(0);
 		}
 		
@@ -93,14 +110,18 @@ public class Peer {
 		prevInput = new Thread(new PrevInput());
 		prevInput.start();
 		
-		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 		String userInput;
 		try {
-			mainloop:while (!quit) {
+			if (input != null && args.length != 0) {
+				chatQueue.add("    [" + myIP + " has joined the chat.]");
+			} else {
+				System.out.println("   [Now listening at IP " + myIP + ".]");
+			}
+			mainloop:while (!getQuit()) {
 				if ((userInput = stdIn.readLine()) != null) {
 				    if (userInput.toLowerCase().equals("quit"))
 				    {
-					    	quit = true;
+					    	setQuit(true);
 					    	break mainloop;
 				    }
 				    else if (Peer.debug && userInput.toLowerCase().equals("debug"))
@@ -110,14 +131,17 @@ public class Peer {
 				    		System.out.println("SocketQueue empty? " + socketQueue.isEmpty());
 				    		System.out.println("ChatQueue empty? " + chatQueue.isEmpty());
 				    		System.out.println("reconnectQueue empty? " + reconnectQueue.isEmpty());
-				    		System.out.println("Hold = " + hold + ", prevDone = " + prevDone + ", quit = " + quit);
+				    		System.out.println("Hold = " + getHold() + ", prevDone = " + prevDone + ", quit = " + getQuit());
 				    }
-				    else if (Peer.debug && userInput.toLowerCase().equals("test"))
+				    else if (Peer.debug && userInput.toLowerCase().startsWith("housekeeping"))
 				    {
-				    		Peer.prevOut.println("test");
+				    	if(Peer.debug)
+				    	System.out.println("Sending housekeeping: " + userInput.substring(13));	
+				    	Peer.prevOut.println(userInput.substring(13));
 				    }
 				    else
 				    {
+				    	System.out.println("You (" + myIP + "): " + userInput);
 				        Peer.chatQueue.add(Peer.myIP + ": " + userInput);
 				    }
 				}
@@ -127,28 +151,27 @@ public class Peer {
 			e.printStackTrace();
 		}
 		
-		while(!socketQueue.isEmpty())
+		chatQueue.add("    [" + myIP + " has left the chat.]");
+		if (!next.getInetAddress().getHostAddress().equals(myIP) &&
+				!prev.getInetAddress().getHostAddress().equals(myIP)) 
 		{
-		    Socket s = socketQueue.remove();
-		    PrevOutput.sendReconnect(s);
-		}
-		
-        try {
-    		prevOut.println("Hold");
-		    Thread.sleep(2000);
-		} catch (InterruptedException e) {
-		    // TODO Auto-generated catch block
-		    e.printStackTrace();
+			while(!socketQueue.isEmpty())
+			{
+			    Socket s = socketQueue.remove();
+			    PrevOutput.sendReconnect(s);
+			}
+	    	prevOut.println("Hold");
+		    
+		    while(!chatQueue.isEmpty())
+		    {
+		    	nextOut.println(chatQueue.remove());
+		    }
+		    
+		    prevOut.println(next.getInetAddress().getHostAddress());
+		    //Thread.sleep(1000);
 		}
 	    
-	    while(!chatQueue.isEmpty())
-	    {
-	    	nextOut.println(chatQueue.remove());
-	    }
-	    
-	    prevOut.println(next.getInetAddress().getHostAddress());
-
-	    prevOut.close();
+		prevOut.close();
 	    prevIn.close();
 	    prev.close();
 

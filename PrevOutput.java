@@ -11,12 +11,12 @@ public class PrevOutput implements Runnable {
     protected static void sendReconnect(Socket newPrev)
     {
         try {
-    			Peer.prevOut.println("Hold");
-    			if (Peer.debug) System.out.println("Hold sent");
-		    Thread.sleep(2000);
+    		Peer.prevOut.println("hold");
+    		if (Peer.debug) System.out.println("Hold sent");
 		    Peer.prevOut.println(newPrev.getInetAddress().getHostAddress());
 		    if (Peer.debug) System.out.println("IP " + 
 		    		newPrev.getInetAddress().getHostAddress() + " sent");
+		    //Thread.sleep(1000);
 		    Peer.prevOut.close();
 		    Peer.prevIn.close();
 		    Peer.prev.close();
@@ -25,27 +25,35 @@ public class PrevOutput implements Runnable {
 		    		Peer.prev.getInputStream()));
 		    Peer.prevOut = new PrintStream(
 		    		Peer.prev.getOutputStream(), true);
-        } catch (InterruptedException e) {
-        		//shouldn't happen
+		    
+		    /*
+		    synchronized (Peer.prevMonitor) {
+		    	Peer.prevMonitor.notify();
+		    }
+		    */
+       // } catch (InterruptedException e) {
+       // 	if(Peer.debug)
+       //		System.out.println(e.getClass().toString() + " caught in PrevOutput");
 		} catch (SocketException e) {
-			//do nothing. really!
+			if(Peer.debug)
+        		System.out.println(e.getClass().toString() + " caught in PrevOutput");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if(Peer.debug)
+        		System.out.println(e.getClass().toString() + " caught in PrevOutput");
 		}
     }
 	
 	public void run() {
-		System.out.println("PREV: " + Peer.prev.toString());
+		if (Peer.debug)
+			System.out.println("PREV: " + Peer.prev.toString());
 		while (!Peer.prevDone)
 		{	
-			Peer.prevOut.println("80085");
 			if(!Peer.socketQueue.isEmpty())
 			{
 				sendReconnect(Peer.socketQueue.remove());
 			}
 			
-			if (Peer.quit)
+			if (Peer.getQuit())
 			{
 				Peer.prevDone = true;
 			}

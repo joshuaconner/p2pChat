@@ -4,42 +4,51 @@ import java.io.IOException;
 
 public class NextInput implements Runnable {
 
+	@SuppressWarnings("unused")
 	@Override
 	public void run() {
 		String housekeeping;
+		boolean reconnectDone = true;
+		
 		try {
-			while((housekeeping = Peer.nextIn.readLine()) != null)
-			{   
-				//if (Peer.debug) System.out.println("Housekeeping received: " + housekeeping);
-				if (housekeeping.startsWith("Hold"))
-			    {
-			    	Peer.hold = true;
-			    }
-			    else if (Peer.debug && housekeeping.equals("test"))
-			    {
-			    		System.out.println("Test housekeeping message received.");
-			    } 
-			    else
-			    {
-			    	if (!housekeeping.equals("80085")) {
-			    		if (Peer.debug) System.out.println("New IP received: " + housekeeping);
-			    			Peer.reconnectQueue.add(housekeeping);
-			    	}
-			    }
+			while (true) {
+				if((housekeeping = Peer.nextIn.readLine()) != null)
+				{   
+					if (Peer.debug) System.out.println("Housekeeping received: " + housekeeping);
+					if (housekeeping.toLowerCase().equals("hold"))
+				    {
+				    	Peer.setHold(true);
+				    	reconnectDone = false;
+				    	
+				    	while(Peer.getHold() && !reconnectDone) {
+				    		try {
+				    			String reconnectIP;
+				    			if((reconnectIP = Peer.nextIn.readLine()) != null) {
+				    				//if (!reconnectIP.equals("hold"))
+				    					Peer.reconnectQueue.add(reconnectIP);
+				    					reconnectDone = true;
+				    			}
+				    		} catch (IOException e) {
+				    			//do nothing
+				    		}
+				    	}
+				    }
+				    else if (Peer.debug && housekeeping.equals("test"))
+				    {
+				    		System.out.println("Test housekeeping message received.");
+				    } 
+				}
 			}
 		} catch (IOException e) {
-			if(!Peer.quit) 
+			if(Peer.debug) {
+				System.out.println(e.getClass().toString() + " caught in NextInput.java");
+				//e.printStackTrace();
+			}
+			if(!Peer.getQuit()) 
 			{
-				try {
-					wait(1000);
-				} catch (IllegalMonitorStateException e1) {
-					System.out.println("IllegalMontiorStateException");
-				} catch (InterruptedException e1) {
-					// shouldn't happen
-					e1.printStackTrace();
-				}
 				run();
 			}
 		}
 	}
+
 }
