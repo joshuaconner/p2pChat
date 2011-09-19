@@ -28,7 +28,7 @@ public class Peer {
 	/*
 	 * synchronized getter and setter for hold
 	 */
-	protected static synchronized void setHold(Boolean value) {
+	protected static synchronized void setHold(boolean value) {
 		hold = value; 
 	}
 	protected static synchronized boolean getHold() {
@@ -38,7 +38,7 @@ public class Peer {
 	/*
 	 * synchronized getter and setter for quit
 	 */
-	protected static synchronized void setQuit(Boolean value) {
+	protected static synchronized void setQuit(boolean value) {
 		quit = value; 
 	}
 	protected static synchronized boolean getQuit() {
@@ -119,7 +119,7 @@ public class Peer {
 		
 		//display system message notifying you that you are listening or
 		//connected to a chat node, whichever is the case
-		if(input.length() == 0 && args.length == 0) 
+		if(input != null && (input.length() == 0 && args.length == 0)) 
 		{
 			System.out.println("    [Now listening at IP " + myIP + "]");
 		}
@@ -136,13 +136,13 @@ public class Peer {
 		String userInput;
 		try {
 
-			mainloop:while (!getQuit()) {
+			MAINLOOP:while (!getQuit()) {
 				if ((userInput = stdIn.readLine()) != null) {
 				    //if "quit" start quit process
 					if (userInput.toLowerCase().equals("quit"))
 				    {
 					    	setQuit(true);
-					    	break mainloop;
+					    	break MAINLOOP;
 				    }
 					//debug code
 				    else if (Peer.debug && userInput.toLowerCase().equals("debug"))

@@ -10,32 +10,29 @@ public class PrevInput implements Runnable {
 	public void run() {
 	    try {
 	    	String input;
-	    	String lastInput = null;
 	    	
 	    	//main execution loop
 	    	while (true)
 	    	{
 				if((input = Peer.prevIn.readLine()) != null)
 				{
-					if (input.startsWith(Peer.myIP))
 					//if it's a chat I sent
+					if (input.startsWith(Peer.myIP))
 					{ 
 						System.out.println("(You) " + input);
 					}
-					else if (input.substring(5).startsWith(Peer.myIP) || 
-							(input.startsWith("  ") && input.equals(lastInput)))
 					/* it's my chat-join or chat-leave message that's come back
-					 * around the loop OR it's a chat-leave message repeat
-					 * ..then ignore it!
+					 * around the loop, then ignore it
 					 */
+					else if (input.substring(5).startsWith(Peer.myIP))
+					
 					{
 						continue;
 					}
-					else
 					//otherwise it's someone else's chat; add to queue
+					else
 					{
 						Peer.chatQueue.add(input);
-						lastInput = input;
 					}
 				}
 	    	}

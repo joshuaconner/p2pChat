@@ -39,12 +39,13 @@ public class NextOutput implements Runnable {
 	
 	
 	public void run() {
+		String lastExitMsg = null;
 		//debug code
 		if (Peer.debug)
 			System.out.println("NEXT: " + Peer.next.toString());
 	    
 		//main execution loop
-		while (!Peer.getQuit())
+		MAINLOOP:while (!Peer.getQuit())
 	    {
 			//if we are supposed to reconnect to someone, do it!
 			if (!Peer.reconnectQueue.isEmpty()) {
@@ -57,6 +58,13 @@ public class NextOutput implements Runnable {
 			{
 				String message = Peer.chatQueue.remove();
 				
+				if (message.startsWith("  "))
+					if (message.equals(lastExitMsg)) 
+					{
+						continue MAINLOOP;
+					}
+					else lastExitMsg = message;
+					
 				//make sure it's not my message before printing to stdIn
 				if (!message.startsWith(Peer.myIP) &&
 						!message.substring(5).startsWith(Peer.myIP)) 
